@@ -54,6 +54,18 @@ export default function Quiz() {
         };
 
         fetchQuiz();
+
+        // Prevent accidental page close/refresh
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            e.preventDefault();
+            e.returnValue = '';
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
     }, [router]);
 
     useEffect(() => {
@@ -97,6 +109,30 @@ export default function Quiz() {
         }
     };
 
+    const handleBackToHome = async () => {
+        if (confirm('Bạn có chắc muốn kết thúc bài thi? Kết quả sẽ không được lưu.')) {
+            const sessionId = localStorage.getItem('sessionId');
+            if (sessionId) {
+                // Mark session as incomplete/abandoned
+                try {
+                    await fetch('/api/quiz/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sessionId: parseInt(sessionId),
+                            answers: {},
+                            abandoned: true,
+                        }),
+                    });
+                } catch (error) {
+                    console.error('Failed to mark quiz as abandoned:', error);
+                }
+            }
+            localStorage.removeItem('sessionId');
+            router.push('/dashboard');
+        }
+    };
+
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
@@ -128,6 +164,12 @@ export default function Quiz() {
                 {/* Header */}
                 <div className="quiz-card p-6 mb-6">
                     <div className="flex justify-between items-center mb-4">
+                        <button
+                            onClick={handleBackToHome}
+                            className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+                        >
+                            🏠 Trang chủ
+                        </button>
                         <div className="text-lg font-semibold text-gray-800">
                             Question {currentIndex + 1} of {questions.length}
                         </div>

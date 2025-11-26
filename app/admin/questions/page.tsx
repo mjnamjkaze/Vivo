@@ -49,6 +49,15 @@ export default function QuestionsPage() {
     });
 
     useEffect(() => {
+        // Read categoryId from URL params
+        const params = new URLSearchParams(window.location.search);
+        const categoryId = params.get('categoryId');
+        if (categoryId) {
+            setFilterCategory(categoryId);
+        }
+    }, []);
+
+    useEffect(() => {
         fetchCategories();
         fetchQuestions();
     }, [filterCategory]);

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Category {
     id: number;
@@ -17,6 +18,7 @@ export default function CategoriesPage() {
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
     const [formData, setFormData] = useState({ name: '', description: '' });
+    const router = useRouter();
 
     useEffect(() => {
         fetchCategories();
@@ -173,7 +175,8 @@ export default function CategoriesPage() {
                 {categories.map((category) => (
                     <div
                         key={category.id}
-                        className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition"
+                        className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition cursor-pointer"
+                        onClick={() => router.push(`/admin/questions?categoryId=${category.id}`)}
                     >
                         <div className="flex justify-between items-start mb-4">
                             <div>
@@ -189,7 +192,7 @@ export default function CategoriesPage() {
                                 {category._count.questions} questions
                             </span>
 
-                            <div className="flex gap-2">
+                            <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                                 <button
                                     onClick={() => handleEdit(category)}
                                     className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"

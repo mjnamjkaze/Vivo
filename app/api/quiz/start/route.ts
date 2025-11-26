@@ -48,14 +48,19 @@ export async function POST(request: NextRequest) {
             )
         );
 
-        // Get the questions with answers
+        // Get the questions with answers (including image URLs)
         const questions = selectedQuestions.map((q) => ({
             id: q.id,
             question: q.question,
+            questionImageUrl: q.questionImageUrl,
             optionA: q.optionA,
+            optionAImageUrl: q.optionAImageUrl,
             optionB: q.optionB,
+            optionBImageUrl: q.optionBImageUrl,
             optionC: q.optionC,
+            optionCImageUrl: q.optionCImageUrl,
             optionD: q.optionD,
+            optionDImageUrl: q.optionDImageUrl,
         }));
 
         return NextResponse.json({
