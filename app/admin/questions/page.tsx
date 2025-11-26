@@ -33,6 +33,15 @@ export default function QuestionsPage() {
     const [filterCategory, setFilterCategory] = useState<string>('');
     const [uploading, setUploading] = useState(false);
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalQuestions, setTotalQuestions] = useState(0);
+    const [limit] = useState(50);
+
+    // Bulk delete state
+    const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+
     const [formData, setFormData] = useState({
         question: '',
         questionImageUrl: '',
@@ -59,8 +68,12 @@ export default function QuestionsPage() {
 
     useEffect(() => {
         fetchCategories();
-        fetchQuestions();
+        setCurrentPage(1); // Reset to page 1 when filter changes
     }, [filterCategory]);
+
+    useEffect(() => {
+        fetchQuestions();
+    }, [filterCategory, currentPage]);
 
     const fetchCategories = async () => {
         try {
@@ -74,13 +87,22 @@ export default function QuestionsPage() {
 
     const fetchQuestions = async () => {
         try {
-            const url = filterCategory
-                ? `/api/admin/questions?categoryId=${filterCategory}`
-                : '/api/admin/questions';
+            const params = new URLSearchParams({
+                page: currentPage.toString(),
+                limit: limit.toString(),
+            });
 
-            const res = await fetch(url);
+            if (filterCategory) {
+                params.append('categoryId', filterCategory);
+            }
+
+            const res = await fetch(`/api/admin/questions?${params}`);
             const data = await res.json();
-            setQuestions(data);
+
+            setQuestions(data.questions);
+            setTotalPages(data.pagination.totalPages);
+            setTotalQuestions(data.pagination.total);
+            setSelectedIds(new Set()); // Clear selection when fetching new page
         } catch (error) {
             console.error('Failed to fetch questions:', error);
         } finally {
@@ -200,6 +222,48 @@ export default function QuestionsPage() {
         });
     };
 
+    const handleSelectOne = (id: number) => {
+        const newSelected = new Set(selectedIds);
+        if (newSelected.has(id)) {
+            newSelected.delete(id);
+        } else {
+            newSelected.add(id);
+        }
+        setSelectedIds(newSelected);
+    };
+
+    const handleSelectAll = () => {
+        if (selectedIds.size === questions.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(questions.map(q => q.id)));
+        }
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedIds.size === 0) return;
+
+        if (!confirm(`Are you sure you want to delete ${selectedIds.size} question(s)?`)) return;
+
+        try {
+            const res = await fetch('/api/admin/questions/bulk-delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: Array.from(selectedIds) }),
+            });
+
+            if (res.ok) {
+                fetchQuestions();
+                setSelectedIds(new Set());
+            } else {
+                const error = await res.json();
+                alert(error.error || 'Failed to delete questions');
+            }
+        } catch (error) {
+            alert('An error occurred');
+        }
+    };
+
     const getCategoryColor = (categoryName: string) => {
         const colors: { [key: string]: string } = {
             'Tiếng Anh': 'bg-blue-100 text-blue-700',
@@ -246,12 +310,22 @@ export default function QuestionsPage() {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-gray-800">Questions Management</h1>
-                <button
-                    onClick={() => setShowForm(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition"
-                >
-                    + Add Question
-                </button>
+                <div className="flex gap-3">
+                    {selectedIds.size > 0 && (
+                        <button
+                            onClick={handleBulkDelete}
+                            className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-semibold hover:from-red-700 hover:to-red-800 transition"
+                        >
+                            Delete Selected ({selectedIds.size})
+                        </button>
+                    )}
+                    <button
+                        onClick={() => setShowForm(true)}
+                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition"
+                    >
+                        + Add Question
+                    </button>
+                </div>
             </div>
 
             {/* Filter */}
@@ -270,7 +344,7 @@ export default function QuestionsPage() {
                     ))}
                 </select>
                 <span className="text-sm text-gray-600">
-                    {questions.length} question{questions.length !== 1 ? 's' : ''}
+                    Showing {questions.length > 0 ? ((currentPage - 1) * limit + 1) : 0}-{Math.min(currentPage * limit, totalQuestions)} of {totalQuestions} question{totalQuestions !== 1 ? 's' : ''}
                 </span>
             </div>
 
@@ -372,22 +446,49 @@ export default function QuestionsPage() {
                 </div>
             )}
 
+            {/* Select All Checkbox */}
+            {questions.length > 0 && (
+                <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={selectedIds.size === questions.length && questions.length > 0}
+                            onChange={handleSelectAll}
+                            className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                        />
+                        <span className="text-sm font-medium text-gray-700">
+                            Select All ({questions.length} questions on this page)
+                        </span>
+                    </label>
+                </div>
+            )}
+
             {/* Questions List */}
             <div className="space-y-4">
                 {questions.map((q) => (
                     <div key={q.id} className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition">
                         <div className="flex justify-between items-start mb-4">
-                            <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getCategoryColor(q.category.name)}`}>
-                                        {q.category.name}
-                                    </span>
-                                    <span className="text-xs text-gray-500">ID: {q.id}</span>
+                            <div className="flex items-start gap-4 flex-1">
+                                {/* Checkbox */}
+                                <input
+                                    type="checkbox"
+                                    checked={selectedIds.has(q.id)}
+                                    onChange={() => handleSelectOne(q.id)}
+                                    className="w-5 h-5 mt-1 text-purple-600 rounded focus:ring-purple-500 cursor-pointer"
+                                />
+
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getCategoryColor(q.category.name)}`}>
+                                            {q.category.name}
+                                        </span>
+                                        <span className="text-xs text-gray-500">ID: {q.id}</span>
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-gray-800">{q.question}</h3>
+                                    {q.questionImageUrl && (
+                                        <img src={q.questionImageUrl} alt="Question" className="mt-2 max-w-md h-32 object-cover rounded" />
+                                    )}
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-800">{q.question}</h3>
-                                {q.questionImageUrl && (
-                                    <img src={q.questionImageUrl} alt="Question" className="mt-2 max-w-md h-32 object-cover rounded" />
-                                )}
                             </div>
 
                             <div className="flex gap-2 ml-4">
@@ -439,6 +540,57 @@ export default function QuestionsPage() {
             {questions.length === 0 && (
                 <div className="text-center py-12 text-gray-500">
                     No questions yet. Click "Add Question" to create one.
+                </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="mt-8 flex justify-center items-center gap-2">
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Previous
+                    </button>
+
+                    <div className="flex gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                            // Show first page, last page, current page, and pages around current
+                            const showPage = page === 1 ||
+                                page === totalPages ||
+                                (page >= currentPage - 2 && page <= currentPage + 2);
+
+                            if (!showPage) {
+                                // Show ellipsis
+                                if (page === currentPage - 3 || page === currentPage + 3) {
+                                    return <span key={page} className="px-2 py-2 text-gray-500">...</span>;
+                                }
+                                return null;
+                            }
+
+                            return (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`px-4 py-2 rounded-lg transition ${currentPage === page
+                                            ? 'bg-purple-600 text-white font-semibold'
+                                            : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    {page}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Next
+                    </button>
                 </div>
             )}
         </div>

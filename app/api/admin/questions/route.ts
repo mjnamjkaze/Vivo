@@ -1,21 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// GET all questions with optional category filter
+// GET all questions with optional category filter and pagination
 export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams;
         const categoryId = searchParams.get('categoryId');
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '50');
 
+        const skip = (page - 1) * limit;
+
+        const where = categoryId ? { categoryId: parseInt(categoryId) } : undefined;
+
+        // Get total count
+        const total = await prisma.question.count({ where });
+
+        // Get paginated questions
         const questions = await prisma.question.findMany({
-            where: categoryId ? { categoryId: parseInt(categoryId) } : undefined,
+            where,
             include: {
                 category: true,
             },
             orderBy: { createdAt: 'desc' },
+            skip,
+            take: limit,
         });
 
-        return NextResponse.json(questions);
+        return NextResponse.json({
+            questions,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        });
     } catch (error) {
         console.error('Get questions error:', error);
         return NextResponse.json(
