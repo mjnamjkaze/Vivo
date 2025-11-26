@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId } = await request.json();
+        const { userId, categoryId } = await request.json();
 
         if (!userId) {
             return NextResponse.json(
@@ -12,8 +12,18 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Get 20 random questions
-        const allQuestions = await prisma.question.findMany();
+        // Get 20 random questions (filtered by category if provided)
+        const allQuestions = await prisma.question.findMany({
+            where: categoryId ? { categoryId: parseInt(categoryId) } : undefined,
+        });
+
+        if (allQuestions.length < 20) {
+            return NextResponse.json(
+                { error: 'Not enough questions in this category' },
+                { status: 400 }
+            );
+        }
+
         const shuffled = allQuestions.sort(() => 0.5 - Math.random());
         const selectedQuestions = shuffled.slice(0, 20);
 
