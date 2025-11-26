@@ -74,12 +74,14 @@ export default function Dashboard() {
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
                     <div className="flex gap-3">
-                        <button
-                            onClick={() => router.push('/admin/categories')}
-                            className="px-4 py-2 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition"
-                        >
-                            ⚙️ Admin
-                        </button>
+                        {['admin', 's-admin'].includes(localStorage.getItem('userRole') || '') && (
+                            <button
+                                onClick={() => router.push('/admin/categories')}
+                                className="px-4 py-2 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition"
+                            >
+                                ⚙️ Admin
+                            </button>
+                        )}
                         <button
                             onClick={handleLogout}
                             className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition"
@@ -106,8 +108,8 @@ export default function Dashboard() {
                             <button
                                 onClick={() => setSelectedCategory('')}
                                 className={`p-4 rounded-lg border-2 transition ${selectedCategory === ''
-                                        ? 'border-purple-600 bg-purple-50'
-                                        : 'border-gray-300 bg-white hover:border-purple-300'
+                                    ? 'border-purple-600 bg-purple-50'
+                                    : 'border-gray-300 bg-white hover:border-purple-300'
                                     }`}
                             >
                                 <div className="font-semibold text-gray-800">All Categories</div>
@@ -118,8 +120,8 @@ export default function Dashboard() {
                                     key={cat.id}
                                     onClick={() => setSelectedCategory(cat.id.toString())}
                                     className={`p-4 rounded-lg border-2 transition ${selectedCategory === cat.id.toString()
-                                            ? 'border-purple-600 bg-purple-50'
-                                            : 'border-gray-300 bg-white hover:border-purple-300'
+                                        ? 'border-purple-600 bg-purple-50'
+                                        : 'border-gray-300 bg-white hover:border-purple-300'
                                         }`}
                                 >
                                     <div className="font-semibold text-gray-800">{cat.name}</div>

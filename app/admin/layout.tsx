@@ -1,16 +1,39 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
+    const [userRole, setUserRole] = useState<string>('');
+
+    useEffect(() => {
+        // Get user role from localStorage
+        const role = localStorage.getItem('userRole') || '';
+        setUserRole(role);
+
+        // Security check: Redirect if not admin/s-admin
+        if (role !== 'admin' && role !== 's-admin') {
+            router.push('/dashboard');
+            return;
+        }
+
+        // Security check: Redirect regular admin away from settings
+        if (role === 'admin' && pathname.includes('/admin/settings')) {
+            router.push('/admin/categories');
+        }
+    }, [pathname, router]);
 
     const navItems = [
         { name: 'Categories', path: '/admin/categories' },
         { name: 'Questions', path: '/admin/questions' },
     ];
+
+    // Add Settings for s-admin only
+    if (userRole === 's-admin') {
+        navItems.push({ name: 'Settings', path: '/admin/settings' });
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200">
@@ -20,6 +43,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     <div className="p-6 border-b">
                         <h1 className="text-2xl font-bold text-gray-800">Admin Panel</h1>
                         <p className="text-sm text-gray-600 mt-1">VivoEdu Management</p>
+                        {userRole === 's-admin' && (
+                            <span className="inline-block mt-2 px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded-full font-semibold">
+                                Super Admin
+                            </span>
+                        )}
                     </div>
 
                     <nav className="p-4">
@@ -28,8 +56,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                                 key={item.path}
                                 onClick={() => router.push(item.path)}
                                 className={`w-full text-left px-4 py-3 rounded-lg mb-2 transition ${pathname === item.path
-                                        ? 'bg-purple-600 text-white'
-                                        : 'text-gray-700 hover:bg-gray-100'
+                                    ? 'bg-purple-600 text-white'
+                                    : 'text-gray-700 hover:bg-gray-100'
                                     }`}
                             >
                                 {item.name}

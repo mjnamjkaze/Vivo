@@ -26,6 +26,8 @@ export default function Home() {
 
             if (res.ok) {
                 localStorage.setItem('userId', data.userId);
+                localStorage.setItem('username', data.username);
+                localStorage.setItem('userRole', data.role);
                 router.push('/dashboard');
             } else {
                 setError(data.error || 'Login failed');

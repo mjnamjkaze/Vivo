@@ -12,14 +12,32 @@ async function main() {
         where: { username: 'admin' },
         update: {
             password: hashedPassword,
+            role: 'admin',
         },
         create: {
             username: 'admin',
             password: hashedPassword,
+            role: 'admin',
         },
     });
 
     console.log(`Created admin user: ${admin.username}`);
+
+    // Create s-admin user (super admin)
+    const sAdmin = await prisma.user.upsert({
+        where: { username: 's-admin' },
+        update: {
+            password: hashedPassword,
+            role: 's-admin',
+        },
+        create: {
+            username: 's-admin',
+            password: hashedPassword,
+            role: 's-admin',
+        },
+    });
+
+    console.log(`Created s-admin user: ${sAdmin.username}`);
 
     // Create categories
     const categories = [
