@@ -6,10 +6,15 @@ import { useRouter } from 'next/navigation';
 interface Question {
     id: number;
     question: string;
+    questionImageUrl?: string | null;
     optionA: string;
+    optionAImageUrl?: string | null;
     optionB: string;
+    optionBImageUrl?: string | null;
     optionC: string;
+    optionCImageUrl?: string | null;
     optionD: string;
+    optionDImageUrl?: string | null;
 }
 
 export default function Quiz() {
@@ -140,28 +145,46 @@ export default function Quiz() {
 
                 {/* Question Card */}
                 <div className="quiz-card p-8 mb-6">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-8">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">
                         {currentQuestion.question}
                     </h2>
+
+                    {currentQuestion.questionImageUrl && (
+                        <div className="mb-6">
+                            <img
+                                src={currentQuestion.questionImageUrl}
+                                alt="Question"
+                                className="max-w-full max-h-96 object-contain rounded-lg border-2 border-gray-200"
+                            />
+                        </div>
+                    )}
 
                     <div className="space-y-4">
                         {['A', 'B', 'C', 'D'].map((option) => {
                             const optionText = currentQuestion[`option${option}` as keyof Question] as string;
+                            const optionImage = currentQuestion[`option${option}ImageUrl` as keyof Question] as string | null;
                             const isSelected = answers[currentQuestion.id] === option;
 
                             return (
                                 <button
                                     key={option}
                                     onClick={() => handleAnswer(currentQuestion.id, option)}
-                                    className={`option-button w-full text-left p-4 rounded-lg ${isSelected ? 'selected' : 'bg-white'
-                                        }`}
+                                    className={`option-button w-full text-left p-4 rounded-lg ${isSelected ? 'selected' : 'bg-white'}`}
                                 >
-                                    <div className="flex items-center">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-4 font-semibold ${isSelected ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'
-                                            }`}>
+                                    <div className="flex items-start gap-4">
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold flex-shrink-0 ${isSelected ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}`}>
                                             {option}
                                         </div>
-                                        <div className="text-gray-800">{optionText}</div>
+                                        <div className="flex-1">
+                                            <div className="text-gray-800 mb-2">{optionText}</div>
+                                            {optionImage && (
+                                                <img
+                                                    src={optionImage}
+                                                    alt={`Option ${option}`}
+                                                    className="max-w-full max-h-48 object-contain rounded border"
+                                                />
+                                            )}
+                                        </div>
                                     </div>
                                 </button>
                             );

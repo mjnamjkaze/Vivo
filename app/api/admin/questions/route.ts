@@ -28,7 +28,20 @@ export async function GET(request: NextRequest) {
 // POST create new question
 export async function POST(request: NextRequest) {
     try {
-        const { question, optionA, optionB, optionC, optionD, correctAnswer, categoryId } = await request.json();
+        const {
+            question,
+            questionImageUrl,
+            optionA,
+            optionAImageUrl,
+            optionB,
+            optionBImageUrl,
+            optionC,
+            optionCImageUrl,
+            optionD,
+            optionDImageUrl,
+            correctAnswer,
+            categoryId
+        } = await request.json();
 
         if (!question || !optionA || !optionB || !optionC || !optionD || !correctAnswer || !categoryId) {
             return NextResponse.json(
@@ -47,10 +60,15 @@ export async function POST(request: NextRequest) {
         const newQuestion = await prisma.question.create({
             data: {
                 question,
+                questionImageUrl: questionImageUrl || null,
                 optionA,
+                optionAImageUrl: optionAImageUrl || null,
                 optionB,
+                optionBImageUrl: optionBImageUrl || null,
                 optionC,
+                optionCImageUrl: optionCImageUrl || null,
                 optionD,
+                optionDImageUrl: optionDImageUrl || null,
                 correctAnswer,
                 categoryId: parseInt(categoryId),
             },

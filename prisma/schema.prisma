@@ -27,17 +27,22 @@ model Category {
 }
 
 model Question {
-  id            Int      @id @default(autoincrement())
-  question      String
-  optionA       String
-  optionB       String
-  optionC       String
-  optionD       String
-  correctAnswer String   // A, B, C, or D
-  categoryId    Int
-  category      Category @relation(fields: [categoryId], references: [id])
-  createdAt     DateTime @default(now())
-  answers       Answer[]
+  id                Int      @id @default(autoincrement())
+  question          String
+  questionImageUrl  String?  // Optional image for the question
+  optionA           String
+  optionAImageUrl   String?  // Optional image for option A
+  optionB           String
+  optionBImageUrl   String?  // Optional image for option B
+  optionC           String
+  optionCImageUrl   String?  // Optional image for option C
+  optionD           String
+  optionDImageUrl   String?  // Optional image for option D
+  correctAnswer     String   // A, B, C, or D
+  categoryId        Int
+  category          Category @relation(fields: [categoryId], references: [id])
+  createdAt         DateTime @default(now())
+  answers           Answer[]
 }
 
 model QuizSession {

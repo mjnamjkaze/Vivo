@@ -7,7 +7,20 @@ export async function PUT(
     { params }: { params: { id: string } }
 ) {
     try {
-        const { question, optionA, optionB, optionC, optionD, correctAnswer, categoryId } = await request.json();
+        const {
+            question,
+            questionImageUrl,
+            optionA,
+            optionAImageUrl,
+            optionB,
+            optionBImageUrl,
+            optionC,
+            optionCImageUrl,
+            optionD,
+            optionDImageUrl,
+            correctAnswer,
+            categoryId
+        } = await request.json();
         const id = parseInt(params.id);
 
         if (!question || !optionA || !optionB || !optionC || !optionD || !correctAnswer || !categoryId) {
@@ -28,10 +41,15 @@ export async function PUT(
             where: { id },
             data: {
                 question,
+                questionImageUrl: questionImageUrl || null,
                 optionA,
+                optionAImageUrl: optionAImageUrl || null,
                 optionB,
+                optionBImageUrl: optionBImageUrl || null,
                 optionC,
+                optionCImageUrl: optionCImageUrl || null,
                 optionD,
+                optionDImageUrl: optionDImageUrl || null,
                 correctAnswer,
                 categoryId: parseInt(categoryId),
             },
