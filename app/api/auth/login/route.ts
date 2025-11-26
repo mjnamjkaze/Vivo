@@ -33,6 +33,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        console.log('Login user found:', { username: user.username, role: (user as any).role });
+
         return NextResponse.json({
             userId: user.id,
             username: user.username,
