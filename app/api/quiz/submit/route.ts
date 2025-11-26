@@ -64,18 +64,20 @@ export async function POST(request: NextRequest) {
             score: correctCount,
             total: session.totalQuestions,
             timeTaken,
-            answers: session.answers.map((a) => ({
-                question: a.question.question,
-                userAnswer: a.userAnswer,
-                correctAnswer: a.question.correctAnswer,
-                isCorrect: a.isCorrect,
-                options: {
-                    A: a.question.optionA,
-                    B: a.question.optionB,
-                    C: a.question.optionC,
-                    D: a.question.optionD,
-                },
-            })),
+            answers: session.answers
+                .sort((a, b) => a.id - b.id) // Sort by answer ID to maintain quiz order
+                .map((a) => ({
+                    question: a.question.question,
+                    userAnswer: a.userAnswer,
+                    correctAnswer: a.question.correctAnswer,
+                    isCorrect: a.isCorrect,
+                    options: {
+                        A: a.question.optionA,
+                        B: a.question.optionB,
+                        C: a.question.optionC,
+                        D: a.question.optionD,
+                    },
+                })),
         });
     } catch (error) {
         console.error('Submit quiz error:', error);

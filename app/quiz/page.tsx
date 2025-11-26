@@ -32,22 +32,22 @@ export default function Quiz() {
             return;
         }
 
-        // Fetch quiz data
+        // Fetch quiz data from existing session
         const fetchQuiz = async () => {
             try {
-                const res = await fetch('/api/quiz/start', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: parseInt(localStorage.getItem('userId')!) }),
-                });
+                const res = await fetch(`/api/quiz/get?sessionId=${sessionId}`);
 
                 const data = await res.json();
                 if (res.ok) {
                     setQuestions(data.questions);
                     setTimeLeft(data.timeLimit);
+                } else {
+                    console.error('Failed to fetch quiz:', data.error);
+                    router.push('/dashboard');
                 }
             } catch (error) {
                 console.error('Failed to fetch quiz:', error);
+                router.push('/dashboard');
             } finally {
                 setLoading(false);
             }
