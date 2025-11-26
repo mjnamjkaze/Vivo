@@ -94,7 +94,7 @@ export default function Home() {
                 </form>
 
                 <div className="mt-6 text-center text-sm text-gray-500">
-                    <p>Demo credentials: admin / 1234</p>
+                    <p>Demo credentials: candidate / 1234</p>
                 </div>
             </div>
         </div>
