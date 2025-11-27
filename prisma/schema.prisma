@@ -80,6 +80,7 @@ model QuizConfig {
   basicPercentage     Int      @default(60)  // % of "Cơ Bản" questions
   advancedPercentage  Int      @default(30)  // % of "Nâng Cao" questions
   masteryPercentage   Int      @default(10)  // % of "Tinh Thông" questions
+  timeLimit           Int      @default(600) // Time limit in seconds (default 10 minutes)
   homepageMode        String   @default("categories") // "categories" or "custom-exams"
   updatedAt           DateTime @updatedAt
   createdAt           DateTime @default(now())
@@ -95,6 +96,7 @@ model CustomExam {
   basicPercentage     Int      @default(60)
   advancedPercentage  Int      @default(30)
   masteryPercentage   Int      @default(10)
+  timeLimit           Int      @default(600) // Time limit in seconds
   isActive            Boolean  @default(true)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt

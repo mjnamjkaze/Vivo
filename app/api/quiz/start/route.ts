@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId, categoryId, customExamId } = await request.json();
+        const { userId, categoryIds, customExamIds } = await request.json();
 
         if (!userId) {
             return NextResponse.json(
@@ -20,26 +20,30 @@ export async function POST(request: NextRequest) {
         let basicPercentage = 60;
         let advancedPercentage = 30;
         let masteryPercentage = 10;
-        let targetCategoryId = categoryId ? parseInt(categoryId) : undefined;
+        let targetCategoryIds: number[] = [];
 
-        // Check if using custom exam
-        if (customExamId) {
-            const customExam = await prisma.customExam.findUnique({
-                where: { id: parseInt(customExamId) },
+        // Check if using custom exams
+        if (customExamIds && customExamIds.length > 0) {
+            const customExams = await prisma.customExam.findMany({
+                where: { id: { in: customExamIds } },
             });
 
-            if (!customExam) {
+            if (customExams.length === 0) {
                 return NextResponse.json(
-                    { error: 'Custom exam not found' },
+                    { error: 'No custom exams found' },
                     { status: 404 }
                 );
             }
 
-            questionCount = customExam.questionCount;
-            basicPercentage = customExam.basicPercentage;
-            advancedPercentage = customExam.advancedPercentage;
-            masteryPercentage = customExam.masteryPercentage;
-            targetCategoryId = customExam.categoryId;
+            // Use first exam's config (or you could average them)
+            const firstExam = customExams[0];
+            questionCount = firstExam.questionCount;
+            basicPercentage = firstExam.basicPercentage;
+            advancedPercentage = firstExam.advancedPercentage;
+            masteryPercentage = firstExam.masteryPercentage;
+
+            // Collect all category IDs from selected exams
+            targetCategoryIds = [...new Set(customExams.map(e => e.categoryId))];
         } else {
             // Use global config
             const config = await prisma.quizConfig.findFirst();
@@ -49,6 +53,11 @@ export async function POST(request: NextRequest) {
                 advancedPercentage = config.advancedPercentage;
                 masteryPercentage = config.masteryPercentage;
             }
+
+            // Use selected categories
+            if (categoryIds && categoryIds.length > 0) {
+                targetCategoryIds = categoryIds;
+            }
         }
 
         // Calculate questions needed per difficulty
@@ -56,12 +65,13 @@ export async function POST(request: NextRequest) {
         const advancedCount = Math.floor(questionCount * advancedPercentage / 100);
         const masteryCount = questionCount - basicCount - advancedCount;
 
-        // Fetch questions by difficulty
+        // Build where clause for categories
         const whereClause: any = {};
-        if (targetCategoryId) {
-            whereClause.categoryId = targetCategoryId;
+        if (targetCategoryIds.length > 0) {
+            whereClause.categoryId = { in: targetCategoryIds };
         }
 
+        // Fetch questions by difficulty
         const basicQuestions = await prisma.question.findMany({
             where: { ...whereClause, tag: 'Cơ Bản' },
         });
@@ -87,11 +97,10 @@ export async function POST(request: NextRequest) {
             .sort(() => 0.5 - Math.random())
             .slice(0, Math.min(masteryCount, masteryQuestions.length));
 
-        const selectedQuestions = [...selectedBasic, ...selectedAdvanced, ...selectedMastery];
+        let selectedQuestions = [...selectedBasic, ...selectedAdvanced, ...selectedMastery];
 
-        // Check if we have enough questions
+        // If we don't have enough questions, try to fill with any available
         if (selectedQuestions.length < questionCount) {
-            // Try to fill with any available questions
             const allQuestions = await prisma.question.findMany({
                 where: whereClause,
             });
@@ -105,9 +114,12 @@ export async function POST(request: NextRequest) {
             selectedQuestions.push(...remaining);
         }
 
+        // Limit to exact question count
+        selectedQuestions = selectedQuestions.slice(0, questionCount);
+
         if (selectedQuestions.length === 0) {
             return NextResponse.json(
-                { error: 'No questions available' },
+                { error: 'No questions available for selected categories' },
                 { status: 400 }
             );
         }
@@ -119,7 +131,7 @@ export async function POST(request: NextRequest) {
         const session = await prisma.quizSession.create({
             data: {
                 userId: parseInt(userId),
-                categoryId: targetCategoryId,
+                categoryId: targetCategoryIds.length > 0 ? targetCategoryIds[0] : null,
                 ipAddress,
                 totalQuestions: shuffled.length,
                 timeLimit: 600, // 10 minutes

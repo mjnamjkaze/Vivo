@@ -28,8 +28,8 @@ export default function Dashboard() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [customExams, setCustomExams] = useState<CustomExam[]>([]);
     const [config, setConfig] = useState<QuizConfig | null>(null);
-    const [selectedCategory, setSelectedCategory] = useState<string>('');
-    const [selectedExam, setSelectedExam] = useState<string>('');
+    const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+    const [selectedExams, setSelectedExams] = useState<number[]>([]);
     const router = useRouter();
 
     useEffect(() => {
@@ -72,6 +72,26 @@ export default function Dashboard() {
         }
     };
 
+    const toggleCategory = (id: number) => {
+        setSelectedCategories(prev =>
+            prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+        );
+    };
+
+    const toggleExam = (id: number) => {
+        setSelectedExams(prev =>
+            prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]
+        );
+    };
+
+    const selectAllCategories = () => {
+        setSelectedCategories([]);
+    };
+
+    const selectAllExams = () => {
+        setSelectedExams([]);
+    };
+
     const startQuiz = async () => {
         setLoading(true);
         const userId = localStorage.getItem('userId');
@@ -81,10 +101,17 @@ export default function Dashboard() {
                 userId: parseInt(userId!),
             };
 
-            if (config?.homepageMode === 'custom-exams' && selectedExam) {
-                body.customExamId = parseInt(selectedExam);
-            } else if (selectedCategory) {
-                body.categoryId = parseInt(selectedCategory);
+            // Only send IDs if specific items are selected
+            if (config?.homepageMode === 'custom-exams') {
+                if (selectedExams.length > 0) {
+                    body.customExamIds = selectedExams;
+                }
+                // If empty, API will use all exams
+            } else {
+                if (selectedCategories.length > 0) {
+                    body.categoryIds = selectedCategories;
+                }
+                // If empty, API will use all categories
             }
 
             const res = await fetch('/api/quiz/start', {
@@ -118,6 +145,7 @@ export default function Dashboard() {
 
     const showCategories = !config || config.homepageMode === 'categories';
     const questionCount = config?.questionCount || 20;
+    const isAllSelected = showCategories ? selectedCategories.length === 0 : selectedExams.length === 0;
 
     return (
         <div className="quiz-container flex items-center justify-center p-4">
@@ -150,36 +178,45 @@ export default function Dashboard() {
                         Test your knowledge with {questionCount} carefully selected questions.
                     </p>
 
-                    {/* Categories or Custom Exams */}
+                    {/* Categories or Custom Exams - Multiple Selection */}
                     <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-800 mb-3">
-                            {showCategories ? 'Select Category (optional):' : 'Select Exam:'}
-                        </label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="flex justify-between items-center mb-3">
+                            <label className="text-sm font-medium text-gray-800">
+                                {showCategories
+                                    ? `Select Categories:`
+                                    : `Select Exams:`}
+                            </label>
+                            <button
+                                onClick={showCategories ? selectAllCategories : selectAllExams}
+                                className={`px-3 py-1 text-sm rounded-lg transition ${isAllSelected
+                                        ? 'bg-purple-600 text-white'
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                            >
+                                {isAllSelected ? '✓ All Selected' : 'Select All'}
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto p-2">
                             {showCategories ? (
                                 <>
-                                    <button
-                                        onClick={() => setSelectedCategory('')}
-                                        className={`p-4 rounded-lg border-2 transition ${selectedCategory === ''
-                                            ? 'border-purple-600 bg-purple-50'
-                                            : 'border-gray-300 bg-white hover:border-purple-300'
-                                            }`}
-                                    >
-                                        <div className="font-semibold text-gray-800">All Categories</div>
-                                        <div className="text-sm text-gray-600">Mixed questions</div>
-                                    </button>
                                     {categories.map((cat) => (
                                         <button
                                             key={cat.id}
-                                            onClick={() => setSelectedCategory(cat.id.toString())}
-                                            className={`p-4 rounded-lg border-2 transition ${selectedCategory === cat.id.toString()
-                                                ? 'border-purple-600 bg-purple-50'
-                                                : 'border-gray-300 bg-white hover:border-purple-300'
+                                            onClick={() => toggleCategory(cat.id)}
+                                            className={`p-4 rounded-lg border-2 transition text-left ${selectedCategories.includes(cat.id)
+                                                    ? 'border-purple-600 bg-purple-50'
+                                                    : 'border-gray-300 bg-white hover:border-purple-300'
                                                 }`}
                                         >
-                                            <div className="font-semibold text-gray-800">{cat.name}</div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="font-semibold text-gray-800">{cat.name}</div>
+                                                {selectedCategories.includes(cat.id) && (
+                                                    <span className="text-purple-600">✓</span>
+                                                )}
+                                            </div>
                                             {cat.description && (
-                                                <div className="text-sm text-gray-600">{cat.description}</div>
+                                                <div className="text-sm text-gray-600 mt-1">{cat.description}</div>
                                             )}
                                         </button>
                                     ))}
@@ -188,21 +225,34 @@ export default function Dashboard() {
                                 customExams.map((exam) => (
                                     <button
                                         key={exam.id}
-                                        onClick={() => setSelectedExam(exam.id.toString())}
-                                        className={`p-4 rounded-lg border-2 transition ${selectedExam === exam.id.toString()
-                                            ? 'border-purple-600 bg-purple-50'
-                                            : 'border-gray-300 bg-white hover:border-purple-300'
+                                        onClick={() => toggleExam(exam.id)}
+                                        className={`p-4 rounded-lg border-2 transition text-left ${selectedExams.includes(exam.id)
+                                                ? 'border-purple-600 bg-purple-50'
+                                                : 'border-gray-300 bg-white hover:border-purple-300'
                                             }`}
                                     >
-                                        <div className="font-semibold text-gray-800">{exam.name}</div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="font-semibold text-gray-800">{exam.name}</div>
+                                            {selectedExams.includes(exam.id) && (
+                                                <span className="text-purple-600">✓</span>
+                                            )}
+                                        </div>
                                         {exam.description && (
-                                            <div className="text-sm text-gray-600">{exam.description}</div>
+                                            <div className="text-sm text-gray-600 mt-1">{exam.description}</div>
                                         )}
                                         <div className="text-xs text-purple-600 mt-1">{exam.questionCount} câu</div>
                                     </button>
                                 ))
                             )}
                         </div>
+
+                        {isAllSelected && (
+                            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <p className="text-sm text-blue-700">
+                                    💡 <strong>All {showCategories ? 'categories' : 'exams'} selected</strong> - Questions will be mixed from all available sources
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -222,7 +272,7 @@ export default function Dashboard() {
 
                     <button
                         onClick={startQuiz}
-                        disabled={loading || (!showCategories && !selectedExam)}
+                        disabled={loading}
                         className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-indigo-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     >
                         {loading ? 'Starting Quiz...' : 'Start Quiz'}
