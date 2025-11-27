@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
                         { email: user.email || undefined },
                         { phone: user.phone || undefined }
                     ]
-                }
+                } as any
             });
 
             if (existingUser) {
@@ -71,13 +71,13 @@ export async function POST(request: NextRequest) {
                         password: hashedPassword,
                         mustChangePassword: true,
                         role: 'user'
-                    }
+                    } as any
                 });
 
                 results.push({
                     username: newUser.username,
-                    email: newUser.email,
-                    phone: newUser.phone,
+                    email: (newUser as any).email,
+                    phone: (newUser as any).phone,
                     password: password // Return plain text password so admin can distribute it
                 });
             } catch (e: any) {

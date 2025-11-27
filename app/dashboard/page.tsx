@@ -183,14 +183,7 @@ export default function Dashboard() {
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
                     <div className="flex gap-3">
-                        {typeof window !== 'undefined' && localStorage.getItem('userRole') === 's-admin' && (
-                            <button
-                                onClick={() => router.push('/admin/users')}
-                                className="px-4 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition"
-                            >
-                                👥 Users
-                            </button>
-                        )}
+
                         {(typeof window !== 'undefined' && ['admin', 's-admin'].includes(localStorage.getItem('userRole') || '')) && (
                             <button
                                 onClick={() => router.push('/admin/categories')}

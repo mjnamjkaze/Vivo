@@ -31,6 +31,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             // S-Admin only sees user management and system reset
             setNavItems([
                 { name: 'User Management', path: '/admin/settings' },
+                { name: 'Import Users', path: '/admin/users' },
                 { name: 'System Reset', path: '/admin/system-reset' },
             ]);
         } else {
@@ -52,7 +53,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         }
 
         // Security check: Redirect s-admin away from other pages
-        if (role === 's-admin' && !pathname.includes('/admin/settings') && !pathname.includes('/admin/system-reset')) {
+        if (role === 's-admin' && !pathname.includes('/admin/settings') && !pathname.includes('/admin/system-reset') && !pathname.includes('/admin/users')) {
             router.push('/admin/settings');
         }
     }, [pathname, router]);
