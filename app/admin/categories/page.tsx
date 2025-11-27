@@ -180,7 +180,12 @@ export default function CategoriesPage() {
                     >
                         <div className="flex justify-between items-start mb-4">
                             <div>
-                                <h3 className="text-xl font-bold text-gray-800">{category.name}</h3>
+                                <div className="flex items-center gap-2">
+                                    <h3 className="text-xl font-bold text-gray-800">{category.name}</h3>
+                                    <span className="px-2 py-1 text-xs font-semibold bg-purple-100 text-purple-700 rounded">
+                                        ID: {category.id}
+                                    </span>
+                                </div>
                                 {category.description && (
                                     <p className="text-sm text-gray-600 mt-1">{category.description}</p>
                                 )}
