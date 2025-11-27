@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId, categoryId } = await request.json();
+        const { userId, categoryId, customExamId } = await request.json();
 
         if (!userId) {
             return NextResponse.json(
@@ -12,33 +12,123 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Get 20 random questions (filtered by category if provided)
-        const allQuestions = await prisma.question.findMany({
-            where: categoryId ? { categoryId: parseInt(categoryId) } : undefined,
+        // Get IP address
+        const forwarded = request.headers.get('x-forwarded-for');
+        const ipAddress = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown';
+
+        let questionCount = 20;
+        let basicPercentage = 60;
+        let advancedPercentage = 30;
+        let masteryPercentage = 10;
+        let targetCategoryId = categoryId ? parseInt(categoryId) : undefined;
+
+        // Check if using custom exam
+        if (customExamId) {
+            const customExam = await prisma.customExam.findUnique({
+                where: { id: parseInt(customExamId) },
+            });
+
+            if (!customExam) {
+                return NextResponse.json(
+                    { error: 'Custom exam not found' },
+                    { status: 404 }
+                );
+            }
+
+            questionCount = customExam.questionCount;
+            basicPercentage = customExam.basicPercentage;
+            advancedPercentage = customExam.advancedPercentage;
+            masteryPercentage = customExam.masteryPercentage;
+            targetCategoryId = customExam.categoryId;
+        } else {
+            // Use global config
+            const config = await prisma.quizConfig.findFirst();
+            if (config) {
+                questionCount = config.questionCount;
+                basicPercentage = config.basicPercentage;
+                advancedPercentage = config.advancedPercentage;
+                masteryPercentage = config.masteryPercentage;
+            }
+        }
+
+        // Calculate questions needed per difficulty
+        const basicCount = Math.floor(questionCount * basicPercentage / 100);
+        const advancedCount = Math.floor(questionCount * advancedPercentage / 100);
+        const masteryCount = questionCount - basicCount - advancedCount;
+
+        // Fetch questions by difficulty
+        const whereClause: any = {};
+        if (targetCategoryId) {
+            whereClause.categoryId = targetCategoryId;
+        }
+
+        const basicQuestions = await prisma.question.findMany({
+            where: { ...whereClause, tag: 'Cơ Bản' },
         });
 
-        if (allQuestions.length < 20) {
+        const advancedQuestions = await prisma.question.findMany({
+            where: { ...whereClause, tag: 'Nâng Cao' },
+        });
+
+        const masteryQuestions = await prisma.question.findMany({
+            where: { ...whereClause, tag: 'Tinh Thông' },
+        });
+
+        // Random selection from each difficulty
+        const selectedBasic = basicQuestions
+            .sort(() => 0.5 - Math.random())
+            .slice(0, Math.min(basicCount, basicQuestions.length));
+
+        const selectedAdvanced = advancedQuestions
+            .sort(() => 0.5 - Math.random())
+            .slice(0, Math.min(advancedCount, advancedQuestions.length));
+
+        const selectedMastery = masteryQuestions
+            .sort(() => 0.5 - Math.random())
+            .slice(0, Math.min(masteryCount, masteryQuestions.length));
+
+        const selectedQuestions = [...selectedBasic, ...selectedAdvanced, ...selectedMastery];
+
+        // Check if we have enough questions
+        if (selectedQuestions.length < questionCount) {
+            // Try to fill with any available questions
+            const allQuestions = await prisma.question.findMany({
+                where: whereClause,
+            });
+
+            const usedIds = new Set(selectedQuestions.map(q => q.id));
+            const remaining = allQuestions
+                .filter(q => !usedIds.has(q.id))
+                .sort(() => 0.5 - Math.random())
+                .slice(0, questionCount - selectedQuestions.length);
+
+            selectedQuestions.push(...remaining);
+        }
+
+        if (selectedQuestions.length === 0) {
             return NextResponse.json(
-                { error: 'Not enough questions in this category' },
+                { error: 'No questions available' },
                 { status: 400 }
             );
         }
 
-        const shuffled = allQuestions.sort(() => 0.5 - Math.random());
-        const selectedQuestions = shuffled.slice(0, 20);
+        // Shuffle final list
+        const shuffled = selectedQuestions.sort(() => 0.5 - Math.random());
 
-        // Create quiz session
+        // Create quiz session with IP and category tracking
         const session = await prisma.quizSession.create({
             data: {
                 userId: parseInt(userId),
-                totalQuestions: 20,
+                categoryId: targetCategoryId,
+                ipAddress,
+                totalQuestions: shuffled.length,
                 timeLimit: 600, // 10 minutes
             },
         });
 
-        // Create answer records for each question
+        // Create answer records
         await Promise.all(
-            selectedQuestions.map((q) =>
+            shuffled.map((q) =>
                 prisma.answer.create({
                     data: {
                         sessionId: session.id,
@@ -48,8 +138,8 @@ export async function POST(request: NextRequest) {
             )
         );
 
-        // Get the questions with answers (including image URLs)
-        const questions = selectedQuestions.map((q) => ({
+        // Return questions (without correct answers)
+        const questions = shuffled.map((q) => ({
             id: q.id,
             question: q.question,
             questionImageUrl: q.questionImageUrl,
