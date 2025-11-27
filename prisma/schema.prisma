@@ -11,12 +11,15 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  password  String
-  role      String   @default("user") // 'user' or 's-admin'
-  createdAt DateTime @default(now())
-  sessions  QuizSession[]
+  id                Int           @id @default(autoincrement())
+  username          String        @unique
+  email             String?       @unique
+  phone             String?       @unique
+  password          String
+  mustChangePassword Boolean      @default(false)
+  role              String        @default("user") // 'user', 'admin', or 's-admin'
+  createdAt         DateTime      @default(now())
+  sessions          QuizSession[]
 }
 
 model Category {

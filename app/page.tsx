@@ -28,7 +28,12 @@ export default function Home() {
                 localStorage.setItem('userId', data.userId);
                 localStorage.setItem('username', data.username);
                 localStorage.setItem('userRole', data.role);
-                router.push('/dashboard');
+
+                if (data.mustChangePassword) {
+                    router.push('/change-password');
+                } else {
+                    router.push('/dashboard');
+                }
             } else {
                 setError(data.error || 'Login failed');
             }
