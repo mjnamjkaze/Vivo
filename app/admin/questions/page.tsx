@@ -302,6 +302,68 @@ export default function QuestionsPage() {
         </div>
     );
 
+    const handleExport = async () => {
+        const userId = localStorage.getItem('userId');
+        if (!userId) return alert('User ID not found');
+
+        if (!filterCategory) return alert('Please select a category to export');
+
+        try {
+            const res = await fetch(`/api/admin/questions/export?userId=${userId}&categoryId=${filterCategory}`);
+            if (!res.ok) throw new Error('Export failed');
+
+            const data = await res.json();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `questions_category_${filterCategory}.json`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            alert('Failed to export questions');
+        }
+    };
+
+    const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const userId = localStorage.getItem('userId');
+        if (!userId) return alert('User ID not found');
+
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            try {
+                const questions = JSON.parse(event.target?.result as string);
+                const res = await fetch('/api/admin/questions/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId,
+                        categoryId: filterCategory, // Optional, if not in JSON
+                        questions
+                    }),
+                });
+
+                if (res.ok) {
+                    alert('Import successful');
+                    fetchQuestions();
+                } else {
+                    const error = await res.json();
+                    alert(error.error || 'Import failed');
+                }
+            } catch (error) {
+                alert('Invalid JSON file');
+            }
+        };
+        reader.readAsText(file);
+        // Reset input
+        e.target.value = '';
+    };
+
     if (loading) {
         return <div className="text-center py-8">Loading...</div>;
     }
@@ -311,6 +373,31 @@ export default function QuestionsPage() {
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-gray-800">Questions Management</h1>
                 <div className="flex gap-3">
+                    <div className="flex gap-2 mr-4 border-r pr-4">
+                        <button
+                            onClick={handleExport}
+                            className="px-4 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition flex items-center gap-2"
+                            title="Export filtered questions to JSON"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export JSON
+                        </button>
+                        <label className="px-4 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition flex items-center gap-2 cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                            Import JSON
+                            <input
+                                type="file"
+                                accept=".json"
+                                onChange={handleImport}
+                                className="hidden"
+                            />
+                        </label>
+                    </div>
+
                     {selectedIds.size > 0 && (
                         <button
                             onClick={handleBulkDelete}
@@ -574,8 +661,8 @@ export default function QuestionsPage() {
                                     key={page}
                                     onClick={() => setCurrentPage(page)}
                                     className={`px-4 py-2 rounded-lg transition ${currentPage === page
-                                            ? 'bg-purple-600 text-white font-semibold'
-                                            : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                                        ? 'bg-purple-600 text-white font-semibold'
+                                        : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                                         }`}
                                 >
                                     {page}
