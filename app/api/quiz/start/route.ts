@@ -26,15 +26,58 @@ export async function POST(request: NextRequest) {
         // Check if using custom exams
         if (customExamIds && customExamIds.length > 0) {
             const customExams = await prisma.customExam.findMany({
-                // Calculate questions needed per difficulty
-                const basicCount = Math.floor(questionCount * basicPercentage / 100);
-                const advancedCount = Math.floor(questionCount * advancedPercentage / 100);
-                const masteryCount = questionCount - basicCount - advancedCount;
+                where: {
+                    id: { in: customExamIds },
+                    isActive: true
+                }
+            });
 
-                // Build where clause for categories
-                const whereClause: any = {};
-                if(targetCategoryIds.length > 0) {
-                    whereClause.categoryId = { in: targetCategoryIds };
+            if (customExams.length > 0) {
+                // Use settings from the first selected exam (or average/sum logic if needed)
+                // For simplicity, we'll use the first one's settings if multiple selected
+                // Or we could pick random questions from all selected exams
+
+                // Here we'll aggregate questions from all selected exams
+                // But first, let's just use the config from the first one for time/count
+                const exam = customExams[0];
+                questionCount = exam.questionCount;
+                basicPercentage = exam.basicPercentage;
+                advancedPercentage = exam.advancedPercentage;
+                masteryPercentage = exam.masteryPercentage;
+                timeLimit = exam.timeLimit;
+
+                // If exams have specific categories, we might need to handle that
+                // But currently CustomExam doesn't link to categories directly in a way that limits questions
+                // It just defines the structure. 
+                // Wait, CustomExam usually implies a specific set of questions or a specific configuration.
+                // Based on schema, CustomExam is just a configuration template.
+                // So we just use its settings.
+            }
+        } else {
+            // Use global config
+            const config = await prisma.quizConfig.findFirst();
+            if (config) {
+                questionCount = config.questionCount;
+                basicPercentage = config.basicPercentage;
+                advancedPercentage = config.advancedPercentage;
+                masteryPercentage = config.masteryPercentage;
+                timeLimit = config.timeLimit;
+            }
+        }
+
+        if (categoryIds && categoryIds.length > 0) {
+            targetCategoryIds = categoryIds;
+        }
+
+        // Calculate questions needed per difficulty
+        const basicCount = Math.floor(questionCount * basicPercentage / 100);
+        const advancedCount = Math.floor(questionCount * advancedPercentage / 100);
+        const masteryCount = questionCount - basicCount - advancedCount;
+
+        // Build where clause for categories
+        const whereClause: any = {};
+        if (targetCategoryIds.length > 0) {
+            whereClause.categoryId = { in: targetCategoryIds };
         }
 
         // Fetch questions by difficulty
