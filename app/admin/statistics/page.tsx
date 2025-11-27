@@ -26,6 +26,11 @@ interface StatisticsData {
     }>;
 }
 
+interface Category {
+    id: number;
+    name: string;
+}
+
 const COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
 
 export default function StatisticsPage() {
@@ -34,10 +39,22 @@ export default function StatisticsPage() {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('');
+    const [categories, setCategories] = useState<Category[]>([]);
 
     useEffect(() => {
+        fetchCategories();
         fetchStatistics();
     }, []);
+
+    const fetchCategories = async () => {
+        try {
+            const res = await fetch('/api/admin/categories');
+            const data = await res.json();
+            setCategories(data);
+        } catch (error) {
+            console.error('Failed to fetch categories:', error);
+        }
+    };
 
     const fetchStatistics = async () => {
         try {
@@ -96,13 +113,18 @@ export default function StatisticsPage() {
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-1">Danh mục</label>
-                        <input
-                            type="number"
+                        <select
                             value={categoryFilter}
                             onChange={(e) => setCategoryFilter(e.target.value)}
-                            placeholder="Category ID"
-                            className="w-full px-3 py-2 border rounded-lg"
-                        />
+                            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                        >
+                            <option value="">Tất cả danh mục</option>
+                            {categories.map((cat) => (
+                                <option key={cat.id} value={cat.id}>
+                                    {cat.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                     <div className="flex items-end">
                         <button
@@ -229,9 +251,9 @@ export default function StatisticsPage() {
                                     </td>
                                     <td className="py-3 px-4">
                                         <span className={`px-2 py-1 rounded text-sm ${session.percentage >= 80 ? 'bg-green-100 text-green-700' :
-                                                session.percentage >= 60 ? 'bg-blue-100 text-blue-700' :
-                                                    session.percentage >= 40 ? 'bg-yellow-100 text-yellow-700' :
-                                                        'bg-red-100 text-red-700'
+                                            session.percentage >= 60 ? 'bg-blue-100 text-blue-700' :
+                                                session.percentage >= 40 ? 'bg-yellow-100 text-yellow-700' :
+                                                    'bg-red-100 text-red-700'
                                             }`}>
                                             {session.percentage}%
                                         </span>
