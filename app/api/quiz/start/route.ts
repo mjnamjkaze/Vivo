@@ -20,55 +20,21 @@ export async function POST(request: NextRequest) {
         let basicPercentage = 60;
         let advancedPercentage = 30;
         let masteryPercentage = 10;
+        let timeLimit = 600;
         let targetCategoryIds: number[] = [];
 
         // Check if using custom exams
         if (customExamIds && customExamIds.length > 0) {
             const customExams = await prisma.customExam.findMany({
-                where: { id: { in: customExamIds } },
-            });
+                // Calculate questions needed per difficulty
+                const basicCount = Math.floor(questionCount * basicPercentage / 100);
+                const advancedCount = Math.floor(questionCount * advancedPercentage / 100);
+                const masteryCount = questionCount - basicCount - advancedCount;
 
-            if (customExams.length === 0) {
-                return NextResponse.json(
-                    { error: 'No custom exams found' },
-                    { status: 404 }
-                );
-            }
-
-            // Use first exam's config (or you could average them)
-            const firstExam = customExams[0];
-            questionCount = firstExam.questionCount;
-            basicPercentage = firstExam.basicPercentage;
-            advancedPercentage = firstExam.advancedPercentage;
-            masteryPercentage = firstExam.masteryPercentage;
-
-            // Collect all category IDs from selected exams
-            targetCategoryIds = [...new Set(customExams.map(e => e.categoryId))];
-        } else {
-            // Use global config
-            const config = await prisma.quizConfig.findFirst();
-            if (config) {
-                questionCount = config.questionCount;
-                basicPercentage = config.basicPercentage;
-                advancedPercentage = config.advancedPercentage;
-                masteryPercentage = config.masteryPercentage;
-            }
-
-            // Use selected categories
-            if (categoryIds && categoryIds.length > 0) {
-                targetCategoryIds = categoryIds;
-            }
-        }
-
-        // Calculate questions needed per difficulty
-        const basicCount = Math.floor(questionCount * basicPercentage / 100);
-        const advancedCount = Math.floor(questionCount * advancedPercentage / 100);
-        const masteryCount = questionCount - basicCount - advancedCount;
-
-        // Build where clause for categories
-        const whereClause: any = {};
-        if (targetCategoryIds.length > 0) {
-            whereClause.categoryId = { in: targetCategoryIds };
+                // Build where clause for categories
+                const whereClause: any = {};
+                if(targetCategoryIds.length > 0) {
+                    whereClause.categoryId = { in: targetCategoryIds };
         }
 
         // Fetch questions by difficulty
@@ -134,7 +100,7 @@ export async function POST(request: NextRequest) {
                 categoryId: targetCategoryIds.length > 0 ? targetCategoryIds[0] : null,
                 ipAddress,
                 totalQuestions: shuffled.length,
-                timeLimit: 600, // 10 minutes
+                timeLimit, // Use configured time limit
             },
         });
 

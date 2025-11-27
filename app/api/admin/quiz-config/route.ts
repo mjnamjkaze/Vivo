@@ -16,7 +16,10 @@ export async function GET() {
                     basicPercentage: 60,
                     advancedPercentage: 30,
                     masteryPercentage: 10,
+                    timeLimit: 600,
                     homepageMode: 'categories',
+                    selectedCategoryIds: null,
+                    selectedCustomExamIds: null,
                 },
             });
         }
@@ -40,7 +43,10 @@ export async function PUT(request: Request) {
             basicPercentage,
             advancedPercentage,
             masteryPercentage,
+            timeLimit,
             homepageMode,
+            selectedCategoryIds,
+            selectedCustomExamIds,
         } = body;
 
         // Validation
@@ -78,7 +84,9 @@ export async function PUT(request: Request) {
                     basicPercentage,
                     advancedPercentage,
                     masteryPercentage,
+                    timeLimit,
                     homepageMode,
+                    selectedCategoryIds,
                 },
             });
         } else {
@@ -89,7 +97,9 @@ export async function PUT(request: Request) {
                     basicPercentage,
                     advancedPercentage,
                     masteryPercentage,
+                    timeLimit,
                     homepageMode,
+                    selectedCategoryIds,
                 },
             });
         }

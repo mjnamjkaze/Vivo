@@ -82,6 +82,8 @@ model QuizConfig {
   masteryPercentage   Int      @default(10)  // % of "Tinh Thông" questions
   timeLimit           Int      @default(600) // Time limit in seconds (default 10 minutes)
   homepageMode        String   @default("categories") // "categories" or "custom-exams"
+  selectedCategoryIds String?  // Comma-separated IDs of categories to display on homepage
+  selectedCustomExamIds String? // Comma-separated IDs of custom exams to display on homepage
   updatedAt           DateTime @updatedAt
   createdAt           DateTime @default(now())
 }

@@ -21,6 +21,8 @@ interface CustomExam {
 interface QuizConfig {
     homepageMode: string;
     questionCount: number;
+    selectedCategoryIds: string | null;
+    selectedCustomExamIds: string | null;
 }
 
 export default function Dashboard() {
@@ -62,6 +64,13 @@ export default function Dashboard() {
         }
     };
 
+    // Filter categories based on config
+    const displayedCategories = categories.filter(cat => {
+        if (!config || !config.selectedCategoryIds) return true;
+        const selectedIds = config.selectedCategoryIds.split(',').map(id => parseInt(id));
+        return selectedIds.includes(cat.id);
+    });
+
     const fetchCustomExams = async () => {
         try {
             const res = await fetch('/api/admin/custom-exams');
@@ -71,6 +80,13 @@ export default function Dashboard() {
             console.error('Failed to fetch custom exams:', error);
         }
     };
+
+    // Filter custom exams based on config
+    const displayedExams = customExams.filter(exam => {
+        if (!config || !config.selectedCustomExamIds) return true;
+        const selectedIds = config.selectedCustomExamIds.split(',').map(id => parseInt(id));
+        return selectedIds.includes(exam.id);
+    });
 
     const toggleCategory = (id: number) => {
         setSelectedCategories(prev =>
@@ -189,8 +205,8 @@ export default function Dashboard() {
                             <button
                                 onClick={showCategories ? selectAllCategories : selectAllExams}
                                 className={`px-3 py-1 text-sm rounded-lg transition ${isAllSelected
-                                        ? 'bg-purple-600 text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    ? 'bg-purple-600 text-white'
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                     }`}
                             >
                                 {isAllSelected ? '✓ All Selected' : 'Select All'}
@@ -200,13 +216,13 @@ export default function Dashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto p-2">
                             {showCategories ? (
                                 <>
-                                    {categories.map((cat) => (
+                                    {displayedCategories.map((cat) => (
                                         <button
                                             key={cat.id}
                                             onClick={() => toggleCategory(cat.id)}
                                             className={`p-4 rounded-lg border-2 transition text-left ${selectedCategories.includes(cat.id)
-                                                    ? 'border-purple-600 bg-purple-50'
-                                                    : 'border-gray-300 bg-white hover:border-purple-300'
+                                                ? 'border-purple-600 bg-purple-50'
+                                                : 'border-gray-300 bg-white hover:border-purple-300'
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between">
@@ -218,71 +234,55 @@ export default function Dashboard() {
                                             {cat.description && (
                                                 <div className="text-sm text-gray-600 mt-1">{cat.description}</div>
                                             )}
-                                        </button>
-                                    ))}
-                                </>
-                            ) : (
-                                customExams.map((exam) => (
-                                    <button
-                                        key={exam.id}
-                                        onClick={() => toggleExam(exam.id)}
-                                        className={`p-4 rounded-lg border-2 transition text-left ${selectedExams.includes(exam.id)
-                                                ? 'border-purple-600 bg-purple-50'
-                                                : 'border-gray-300 bg-white hover:border-purple-300'
-                                            }`}
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div className="font-semibold text-gray-800">{exam.name}</div>
-                                            {selectedExams.includes(exam.id) && (
-                                                <span className="text-purple-600">✓</span>
-                                            )}
                                         </div>
-                                        {exam.description && (
-                                            <div className="text-sm text-gray-600 mt-1">{exam.description}</div>
-                                        )}
-                                        <div className="text-xs text-purple-600 mt-1">{exam.questionCount} câu</div>
-                                    </button>
-                                ))
+                                        {
+                                            exam.description && (
+                                                <div className="text-sm text-gray-600 mt-1">{exam.description}</div>
+                                            )
+                                        }
+                                        < div className = "text-xs text-purple-600 mt-1" > { exam.questionCount } câu</div>
+                        </button>
+                        ))
                             )}
-                        </div>
-
-                        {isAllSelected && (
-                            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                <p className="text-sm text-blue-700">
-                                    💡 <strong>All {showCategories ? 'categories' : 'exams'} selected</strong> - Questions will be mixed from all available sources
-                                </p>
-                            </div>
-                        )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div className="bg-white rounded-lg p-4 text-center">
-                            <div className="text-3xl font-bold text-purple-600 mb-1">{questionCount}</div>
-                            <div className="text-sm text-gray-600">Questions</div>
+                    {isAllSelected && (
+                        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p className="text-sm text-blue-700">
+                                💡 <strong>All {showCategories ? 'categories' : 'exams'} selected</strong> - Questions will be mixed from all available sources
+                            </p>
                         </div>
-                        <div className="bg-white rounded-lg p-4 text-center">
-                            <div className="text-3xl font-bold text-indigo-600 mb-1">10</div>
-                            <div className="text-sm text-gray-600">Minutes</div>
-                        </div>
-                        <div className="bg-white rounded-lg p-4 text-center">
-                            <div className="text-3xl font-bold text-pink-600 mb-1">4</div>
-                            <div className="text-sm text-gray-600">Options Each</div>
-                        </div>
+                    )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div className="bg-white rounded-lg p-4 text-center">
+                        <div className="text-3xl font-bold text-purple-600 mb-1">{questionCount}</div>
+                        <div className="text-sm text-gray-600">Questions</div>
                     </div>
-
-                    <button
-                        onClick={startQuiz}
-                        disabled={loading}
-                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-indigo-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                    >
-                        {loading ? 'Starting Quiz...' : 'Start Quiz'}
-                    </button>
+                    <div className="bg-white rounded-lg p-4 text-center">
+                        <div className="text-3xl font-bold text-indigo-600 mb-1">10</div>
+                        <div className="text-sm text-gray-600">Minutes</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 text-center">
+                        <div className="text-3xl font-bold text-pink-600 mb-1">4</div>
+                        <div className="text-sm text-gray-600">Options Each</div>
+                    </div>
                 </div>
 
-                <div className="text-center text-sm text-gray-600">
-                    <p>Good luck! Take your time and read each question carefully.</p>
-                </div>
+                <button
+                    onClick={startQuiz}
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-4 rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-indigo-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                    {loading ? 'Starting Quiz...' : 'Start Quiz'}
+                </button>
+            </div>
+
+            <div className="text-center text-sm text-gray-600">
+                <p>Good luck! Take your time and read each question carefully.</p>
             </div>
         </div>
+        </div >
     );
 }
