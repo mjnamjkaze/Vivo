@@ -146,6 +146,19 @@ export default function QuizSettingsPage() {
         }
     };
 
+    const handlePercentageChange = (field: 'basicPercentage' | 'advancedPercentage' | 'masteryPercentage', value: number) => {
+        let otherSum = 0;
+        if (field !== 'basicPercentage') otherSum += formData.basicPercentage;
+        if (field !== 'advancedPercentage') otherSum += formData.advancedPercentage;
+        if (field !== 'masteryPercentage') otherSum += formData.masteryPercentage;
+
+        if (value + otherSum > 100) {
+            value = 100 - otherSum;
+        }
+
+        setFormData({ ...formData, [field]: value });
+    };
+
     const toggleCategory = (id: number) => {
         setFormData(prev => {
             const current = prev.selectedCategoryIds;
@@ -235,7 +248,7 @@ export default function QuizSettingsPage() {
                             min="0"
                             max="100"
                             value={formData.basicPercentage}
-                            onChange={(e) => setFormData({ ...formData, basicPercentage: parseInt(e.target.value) })}
+                            onChange={(e) => handlePercentageChange('basicPercentage', parseInt(e.target.value))}
                             className="w-full h-2 bg-gray-200 rounded-lg cursor-pointer accent-purple-600"
                         />
                     </div>
@@ -250,7 +263,7 @@ export default function QuizSettingsPage() {
                             min="0"
                             max="100"
                             value={formData.advancedPercentage}
-                            onChange={(e) => setFormData({ ...formData, advancedPercentage: parseInt(e.target.value) })}
+                            onChange={(e) => handlePercentageChange('advancedPercentage', parseInt(e.target.value))}
                             className="w-full h-2 bg-gray-200 rounded-lg cursor-pointer accent-blue-600"
                         />
                     </div>
@@ -265,7 +278,7 @@ export default function QuizSettingsPage() {
                             min="0"
                             max="100"
                             value={formData.masteryPercentage}
-                            onChange={(e) => setFormData({ ...formData, masteryPercentage: parseInt(e.target.value) })}
+                            onChange={(e) => handlePercentageChange('masteryPercentage', parseInt(e.target.value))}
                             className="w-full h-2 bg-gray-200 rounded-lg cursor-pointer accent-red-600"
                         />
                     </div>
@@ -312,8 +325,8 @@ export default function QuizSettingsPage() {
                                 <button
                                     onClick={selectAllCategories}
                                     className={`text-xs px-2 py-1 rounded ${isAllCategoriesSelected
-                                            ? 'bg-purple-600 text-white'
-                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        ? 'bg-purple-600 text-white'
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                         }`}
                                 >
                                     {isAllCategoriesSelected ? '✓ Đang hiển thị tất cả' : 'Chọn tất cả'}
@@ -349,8 +362,8 @@ export default function QuizSettingsPage() {
                                 <button
                                     onClick={selectAllExams}
                                     className={`text-xs px-2 py-1 rounded ${isAllExamsSelected
-                                            ? 'bg-purple-600 text-white'
-                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        ? 'bg-purple-600 text-white'
+                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                         }`}
                                 >
                                     {isAllExamsSelected ? '✓ Đang hiển thị tất cả' : 'Chọn tất cả'}
