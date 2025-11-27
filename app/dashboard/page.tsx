@@ -32,7 +32,7 @@ export default function Dashboard() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [customExams, setCustomExams] = useState<CustomExam[]>([]);
     const [config, setConfig] = useState<QuizConfig | null>(null);
-    const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
     const [selectedExams, setSelectedExams] = useState<number | null>(null);
     const router = useRouter();
 
@@ -91,9 +91,7 @@ export default function Dashboard() {
     });
 
     const toggleCategory = (id: number) => {
-        setSelectedCategories(prev =>
-            prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
-        );
+        setSelectedCategory(prev => prev === id ? null : id);
     };
 
     const toggleExam = (id: number) => {
@@ -101,7 +99,7 @@ export default function Dashboard() {
     };
 
     const selectAllCategories = () => {
-        setSelectedCategories([]);
+        setSelectedCategory(null);
     };
 
     const selectAllExams = () => {
@@ -124,10 +122,10 @@ export default function Dashboard() {
                 }
                 // If null, API will use all exams
             } else {
-                if (selectedCategories.length > 0) {
-                    body.categoryIds = selectedCategories;
+                if (selectedCategory !== null) {
+                    body.categoryIds = [selectedCategory];
                 }
-                // If empty, API will use all categories
+                // If null, API will use all categories
             }
 
             const res = await fetch('/api/quiz/start', {
@@ -175,7 +173,7 @@ export default function Dashboard() {
     }
 
     const timeLimitMinutes = Math.round(timeLimit / 60);
-    const isAllSelected = showCategories ? selectedCategories.length === 0 : selectedExams === null;
+    const isAllSelected = showCategories ? selectedCategory === null : selectedExams === null;
 
     return (
         <div className="quiz-container flex items-center justify-center p-4">
@@ -211,21 +209,12 @@ export default function Dashboard() {
 
                     {/* Categories or Custom Exams - Multiple Selection */}
                     <div className="mb-6">
-                        <div className="flex justify-between items-center mb-3">
+                        <div className="mb-3">
                             <label className="text-sm font-medium text-gray-800">
                                 {showCategories
-                                    ? `Select Categories:`
-                                    : `Select Exams:`}
+                                    ? `Chọn danh mục:`
+                                    : `Chọn bài thi:`}
                             </label>
-                            <button
-                                onClick={showCategories ? selectAllCategories : selectAllExams}
-                                className={`px-3 py-1 text-sm rounded-lg transition ${isAllSelected
-                                    ? 'bg-purple-600 text-white'
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                                    }`}
-                            >
-                                {isAllSelected ? '✓ All Selected' : 'Select All'}
-                            </button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto p-2">
@@ -235,14 +224,14 @@ export default function Dashboard() {
                                         <button
                                             key={cat.id}
                                             onClick={() => toggleCategory(cat.id)}
-                                            className={`p-4 rounded-lg border-2 transition text-left ${selectedCategories.includes(cat.id)
+                                            className={`p-4 rounded-lg border-2 transition text-left ${selectedCategory === cat.id
                                                 ? 'border-purple-600 bg-purple-50'
                                                 : 'border-gray-300 bg-white hover:border-purple-300'
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between">
                                                 <div className="font-semibold text-gray-800">{cat.name}</div>
-                                                {selectedCategories.includes(cat.id) && (
+                                                {selectedCategory === cat.id && (
                                                     <span className="text-purple-600">✓</span>
                                                 )}
                                             </div>
@@ -276,14 +265,6 @@ export default function Dashboard() {
                                 ))
                             )}
                         </div>
-
-                        {isAllSelected && (
-                            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                <p className="text-sm text-blue-700">
-                                    💡 <strong>All {showCategories ? 'categories' : 'exams'} selected</strong> - Questions will be mixed from all available sources
-                                </p>
-                            </div>
-                        )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
