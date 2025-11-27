@@ -124,30 +124,7 @@ export default function SettingsPage() {
         });
     };
 
-    const handleResetSystem = async () => {
-        if (!confirm('WARNING: This will reset the entire system to its default state. All current data (questions, sessions, answers) will be deleted and replaced with seed data. This action cannot be undone. Are you sure?')) return;
 
-        const userId = localStorage.getItem('userId');
-        if (!userId) return alert('User ID not found');
-
-        try {
-            const res = await fetch('/api/admin/reset', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId }),
-            });
-
-            if (res.ok) {
-                alert('System reset successfully');
-                fetchUsers(); // Refresh users if needed
-            } else {
-                const error = await res.json();
-                alert(error.error || 'Failed to reset system');
-            }
-        } catch (error) {
-            alert('An error occurred');
-        }
-    };
 
     if (loading) {
         return <div className="text-center py-8">Loading...</div>;
@@ -158,15 +135,7 @@ export default function SettingsPage() {
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-gray-800">User Management</h1>
                 <div className="flex gap-3">
-                    <button
-                        onClick={handleResetSystem}
-                        className="px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition flex items-center gap-2"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        Reset System to Default
-                    </button>
+
                     <button
                         onClick={() => setShowForm(true)}
                         className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition"
