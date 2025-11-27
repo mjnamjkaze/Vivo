@@ -15,12 +15,14 @@ interface CustomExam {
     description: string | null;
     categoryId: number;
     questionCount: number;
+    timeLimit: number;
     isActive: boolean;
 }
 
 interface QuizConfig {
     homepageMode: string;
     questionCount: number;
+    timeLimit: number;
     selectedCategoryIds: string | null;
     selectedCustomExamIds: string | null;
 }
@@ -31,7 +33,7 @@ export default function Dashboard() {
     const [customExams, setCustomExams] = useState<CustomExam[]>([]);
     const [config, setConfig] = useState<QuizConfig | null>(null);
     const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
-    const [selectedExams, setSelectedExams] = useState<number[]>([]);
+    const [selectedExams, setSelectedExams] = useState<number | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -95,9 +97,7 @@ export default function Dashboard() {
     };
 
     const toggleExam = (id: number) => {
-        setSelectedExams(prev =>
-            prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]
-        );
+        setSelectedExams(prev => prev === id ? null : id);
     };
 
     const selectAllCategories = () => {
@@ -105,7 +105,7 @@ export default function Dashboard() {
     };
 
     const selectAllExams = () => {
-        setSelectedExams([]);
+        setSelectedExams(null);
     };
 
     const startQuiz = async () => {
@@ -119,10 +119,10 @@ export default function Dashboard() {
 
             // Only send IDs if specific items are selected
             if (config?.homepageMode === 'custom-exams') {
-                if (selectedExams.length > 0) {
-                    body.customExamIds = selectedExams;
+                if (selectedExams !== null) {
+                    body.customExamIds = [selectedExams];
                 }
-                // If empty, API will use all exams
+                // If null, API will use all exams
             } else {
                 if (selectedCategories.length > 0) {
                     body.categoryIds = selectedCategories;
@@ -160,8 +160,22 @@ export default function Dashboard() {
     };
 
     const showCategories = !config || config.homepageMode === 'categories';
-    const questionCount = config?.questionCount || 20;
-    const isAllSelected = showCategories ? selectedCategories.length === 0 : selectedExams.length === 0;
+
+    // Calculate dynamic question count and time limit based on selection
+    let questionCount = config?.questionCount || 20;
+    let timeLimit = config?.timeLimit || 600; // in seconds
+
+    if (!showCategories && selectedExams !== null) {
+        // When a specific exam is selected, use its values
+        const selectedExam = customExams.find(exam => exam.id === selectedExams);
+        if (selectedExam) {
+            questionCount = selectedExam.questionCount;
+            timeLimit = selectedExam.timeLimit;
+        }
+    }
+
+    const timeLimitMinutes = Math.round(timeLimit / 60);
+    const isAllSelected = showCategories ? selectedCategories.length === 0 : selectedExams === null;
 
     return (
         <div className="quiz-container flex items-center justify-center p-4">
@@ -242,14 +256,14 @@ export default function Dashboard() {
                                     <button
                                         key={exam.id}
                                         onClick={() => toggleExam(exam.id)}
-                                        className={`p-4 rounded-lg border-2 transition text-left ${selectedExams.includes(exam.id)
+                                        className={`p-4 rounded-lg border-2 transition text-left ${selectedExams === exam.id
                                             ? 'border-purple-600 bg-purple-50'
                                             : 'border-gray-300 bg-white hover:border-purple-300'
                                             }`}
                                     >
                                         <div className="flex items-center justify-between">
                                             <div className="font-semibold text-gray-800">{exam.name}</div>
-                                            {selectedExams.includes(exam.id) && (
+                                            {selectedExams === exam.id && (
                                                 <span className="text-purple-600">✓</span>
                                             )}
                                         </div>
@@ -277,7 +291,7 @@ export default function Dashboard() {
                             <div className="text-sm text-gray-600">Questions</div>
                         </div>
                         <div className="bg-white rounded-lg p-4 text-center">
-                            <div className="text-3xl font-bold text-indigo-600 mb-1">10</div>
+                            <div className="text-3xl font-bold text-indigo-600 mb-1">{timeLimitMinutes}</div>
                             <div className="text-sm text-gray-600">Minutes</div>
                         </div>
                         <div className="bg-white rounded-lg p-4 text-center">
