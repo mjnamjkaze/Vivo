@@ -19,6 +19,7 @@ export async function PUT(
             optionD,
             optionDImageUrl,
             correctAnswer,
+            tag,
             categoryId
         } = await request.json();
         const id = parseInt(params.id);
@@ -51,6 +52,7 @@ export async function PUT(
                 optionD,
                 optionDImageUrl: optionDImageUrl || null,
                 correctAnswer,
+                tag: tag || 'Cơ Bản',
                 categoryId: parseInt(categoryId),
             },
             include: {

@@ -33,12 +33,7 @@ export async function POST(request: NextRequest) {
             });
 
             if (customExams.length > 0) {
-                // Use settings from the first selected exam (or average/sum logic if needed)
-                // For simplicity, we'll use the first one's settings if multiple selected
-                // Or we could pick random questions from all selected exams
-
-                // Here we'll aggregate questions from all selected exams
-                // But first, let's just use the config from the first one for time/count
+                // Use settings from the first selected exam
                 const exam = customExams[0];
                 questionCount = exam.questionCount;
                 basicPercentage = exam.basicPercentage;
@@ -46,12 +41,8 @@ export async function POST(request: NextRequest) {
                 masteryPercentage = exam.masteryPercentage;
                 timeLimit = exam.timeLimit;
 
-                // If exams have specific categories, we might need to handle that
-                // But currently CustomExam doesn't link to categories directly in a way that limits questions
-                // It just defines the structure. 
-                // Wait, CustomExam usually implies a specific set of questions or a specific configuration.
-                // Based on schema, CustomExam is just a configuration template.
-                // So we just use its settings.
+                // Use the exam's category for filtering questions
+                targetCategoryIds = [exam.categoryId];
             }
         } else {
             // Use global config

@@ -60,6 +60,7 @@ export async function POST(request: NextRequest) {
             optionD,
             optionDImageUrl,
             correctAnswer,
+            tag,
             categoryId
         } = await request.json();
 
@@ -90,6 +91,7 @@ export async function POST(request: NextRequest) {
                 optionD,
                 optionDImageUrl: optionDImageUrl || null,
                 correctAnswer,
+                tag: tag || 'Cơ Bản',
                 categoryId: parseInt(categoryId),
             },
             include: {

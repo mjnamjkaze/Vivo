@@ -183,7 +183,7 @@ export default function Dashboard() {
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
                     <div className="flex gap-3">
-                        {['admin', 's-admin'].includes(localStorage.getItem('userRole') || '') && (
+                        {(typeof window !== 'undefined' && ['admin', 's-admin'].includes(localStorage.getItem('userRole') || '')) && (
                             <button
                                 onClick={() => router.push('/admin/categories')}
                                 className="px-4 py-2 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition"

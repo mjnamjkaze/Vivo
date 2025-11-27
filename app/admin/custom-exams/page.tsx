@@ -14,6 +14,7 @@ interface CustomExam {
     categoryId: number;
     category: Category;
     questionCount: number;
+    timeLimit: number;
     basicPercentage: number;
     advancedPercentage: number;
     masteryPercentage: number;
@@ -31,6 +32,7 @@ export default function CustomExamsPage() {
         description: '',
         categoryId: 0,
         questionCount: 20,
+        timeLimit: 600,
         basicPercentage: 60,
         advancedPercentage: 30,
         masteryPercentage: 10,
@@ -105,6 +107,7 @@ export default function CustomExamsPage() {
             description: exam.description || '',
             categoryId: exam.categoryId,
             questionCount: exam.questionCount,
+            timeLimit: exam.timeLimit || 600,
             basicPercentage: exam.basicPercentage,
             advancedPercentage: exam.advancedPercentage,
             masteryPercentage: exam.masteryPercentage,
@@ -138,6 +141,7 @@ export default function CustomExamsPage() {
             description: '',
             categoryId: 0,
             questionCount: 20,
+            timeLimit: 600,
             basicPercentage: 60,
             advancedPercentage: 30,
             masteryPercentage: 10,
@@ -219,6 +223,18 @@ export default function CustomExamsPage() {
                                 />
                             </div>
 
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Thời gian (phút)</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="180"
+                                    value={Math.round(formData.timeLimit / 60)}
+                                    onChange={(e) => setFormData({ ...formData, timeLimit: parseInt(e.target.value) * 60 })}
+                                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none"
+                                />
+                            </div>
+
                             <div className="border-t pt-4">
                                 <h3 className="font-semibold mb-3">Phân bố độ khó</h3>
 
@@ -233,8 +249,32 @@ export default function CustomExamsPage() {
                                             min="0"
                                             max="100"
                                             value={formData.basicPercentage}
-                                            onChange={(e) => setFormData({ ...formData, basicPercentage: parseInt(e.target.value) })}
-                                            className="w-full"
+                                            onChange={(e) => {
+                                                const newBasic = parseInt(e.target.value);
+                                                const remaining = 100 - newBasic;
+                                                const currentOthers = formData.advancedPercentage + formData.masteryPercentage;
+
+                                                if (currentOthers === 0) {
+                                                    // Distribute remaining equally
+                                                    setFormData({
+                                                        ...formData,
+                                                        basicPercentage: newBasic,
+                                                        advancedPercentage: Math.floor(remaining / 2),
+                                                        masteryPercentage: remaining - Math.floor(remaining / 2)
+                                                    });
+                                                } else {
+                                                    // Distribute proportionally
+                                                    const ratio = remaining / currentOthers;
+                                                    const newAdvanced = Math.round(formData.advancedPercentage * ratio);
+                                                    setFormData({
+                                                        ...formData,
+                                                        basicPercentage: newBasic,
+                                                        advancedPercentage: newAdvanced,
+                                                        masteryPercentage: remaining - newAdvanced
+                                                    });
+                                                }
+                                            }}
+                                            className="w-full accent-green-600"
                                         />
                                     </div>
 
@@ -248,8 +288,30 @@ export default function CustomExamsPage() {
                                             min="0"
                                             max="100"
                                             value={formData.advancedPercentage}
-                                            onChange={(e) => setFormData({ ...formData, advancedPercentage: parseInt(e.target.value) })}
-                                            className="w-full"
+                                            onChange={(e) => {
+                                                const newAdvanced = parseInt(e.target.value);
+                                                const remaining = 100 - newAdvanced;
+                                                const currentOthers = formData.basicPercentage + formData.masteryPercentage;
+
+                                                if (currentOthers === 0) {
+                                                    setFormData({
+                                                        ...formData,
+                                                        advancedPercentage: newAdvanced,
+                                                        basicPercentage: Math.floor(remaining / 2),
+                                                        masteryPercentage: remaining - Math.floor(remaining / 2)
+                                                    });
+                                                } else {
+                                                    const ratio = remaining / currentOthers;
+                                                    const newBasic = Math.round(formData.basicPercentage * ratio);
+                                                    setFormData({
+                                                        ...formData,
+                                                        advancedPercentage: newAdvanced,
+                                                        basicPercentage: newBasic,
+                                                        masteryPercentage: remaining - newBasic
+                                                    });
+                                                }
+                                            }}
+                                            className="w-full accent-yellow-600"
                                         />
                                     </div>
 
@@ -263,12 +325,34 @@ export default function CustomExamsPage() {
                                             min="0"
                                             max="100"
                                             value={formData.masteryPercentage}
-                                            onChange={(e) => setFormData({ ...formData, masteryPercentage: parseInt(e.target.value) })}
-                                            className="w-full"
+                                            onChange={(e) => {
+                                                const newMastery = parseInt(e.target.value);
+                                                const remaining = 100 - newMastery;
+                                                const currentOthers = formData.basicPercentage + formData.advancedPercentage;
+
+                                                if (currentOthers === 0) {
+                                                    setFormData({
+                                                        ...formData,
+                                                        masteryPercentage: newMastery,
+                                                        basicPercentage: Math.floor(remaining / 2),
+                                                        advancedPercentage: remaining - Math.floor(remaining / 2)
+                                                    });
+                                                } else {
+                                                    const ratio = remaining / currentOthers;
+                                                    const newBasic = Math.round(formData.basicPercentage * ratio);
+                                                    setFormData({
+                                                        ...formData,
+                                                        masteryPercentage: newMastery,
+                                                        basicPercentage: newBasic,
+                                                        advancedPercentage: remaining - newBasic
+                                                    });
+                                                }
+                                            }}
+                                            className="w-full accent-red-600"
                                         />
                                     </div>
 
-                                    <div className={`p-2 rounded text-sm ${totalPercentage === 100 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                                    <div className={`p-3 rounded text-sm font-semibold ${totalPercentage === 100 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                                         Tổng: {totalPercentage}% {totalPercentage === 100 ? '✓' : '(Phải = 100%)'}
                                     </div>
                                 </div>
@@ -324,6 +408,7 @@ export default function CustomExamsPage() {
                         <div className="text-sm text-gray-600 space-y-1 mb-4">
                             <p>📚 {exam.category.name}</p>
                             <p>📝 {exam.questionCount} câu</p>
+                            <p>⏱️ {Math.round(exam.timeLimit / 60)} phút</p>
                             <p>📊 {exam.basicPercentage}% / {exam.advancedPercentage}% / {exam.masteryPercentage}%</p>
                         </div>
 

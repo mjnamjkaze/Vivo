@@ -20,6 +20,7 @@ interface Question {
     optionD: string;
     optionDImageUrl?: string | null;
     correctAnswer: string;
+    tag: string;
     categoryId: number;
     category: Category;
 }
@@ -54,6 +55,7 @@ export default function QuestionsPage() {
         optionD: '',
         optionDImageUrl: '',
         correctAnswer: 'A',
+        tag: 'Cơ Bản',
         categoryId: '',
     });
 
@@ -179,6 +181,7 @@ export default function QuestionsPage() {
             optionD: question.optionD,
             optionDImageUrl: question.optionDImageUrl || '',
             correctAnswer: question.correctAnswer,
+            tag: question.tag || 'Cơ Bản',
             categoryId: question.categoryId.toString(),
         });
         setShowForm(true);
@@ -218,6 +221,7 @@ export default function QuestionsPage() {
             optionD: '',
             optionDImageUrl: '',
             correctAnswer: 'A',
+            tag: 'Cơ Bản',
             categoryId: '',
         });
     };
@@ -511,6 +515,21 @@ export default function QuestionsPage() {
                                 </select>
                             </div>
 
+                            {/* Difficulty Tag */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Độ khó *</label>
+                                <select
+                                    value={formData.tag}
+                                    onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+                                    required
+                                >
+                                    <option value="Cơ Bản">Cơ Bản</option>
+                                    <option value="Nâng Cao">Nâng Cao</option>
+                                    <option value="Tinh Thông">Tinh Thông</option>
+                                </select>
+                            </div>
+
                             <div className="flex gap-3 pt-4">
                                 <button
                                     type="button"
@@ -568,6 +587,12 @@ export default function QuestionsPage() {
                                     <div className="flex items-center gap-3 mb-2">
                                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getCategoryColor(q.category.name)}`}>
                                             {q.category.name}
+                                        </span>
+                                        <span className={`px-2 py-1 rounded text-xs font-semibold ${q.tag === 'Cơ Bản' ? 'bg-green-100 text-green-700' :
+                                                q.tag === 'Nâng Cao' ? 'bg-yellow-100 text-yellow-700' :
+                                                    'bg-red-100 text-red-700'
+                                            }`}>
+                                            {q.tag}
                                         </span>
                                         <span className="text-xs text-gray-500">ID: {q.id}</span>
                                     </div>
