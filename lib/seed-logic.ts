@@ -397,12 +397,12 @@ export async function seedDatabase(prisma: PrismaClient) {
 
     // 4. Insert Questions
     const allQuestions = [
-        ...mathQuestions.map(q => ({ ...q, categoryId: catMap['Toán Học'] })),
-        ...vietQuestions.map(q => ({ ...q, categoryId: catMap['Tiếng Việt'] })),
-        ...engQuestions.map(q => ({ ...q, categoryId: catMap['Tiếng Anh'] })),
+        ...mathQuestions.slice(0, 50).map(q => ({ ...q, categoryId: catMap['Toán Học'] })),
+        ...vietQuestions.slice(0, 50).map(q => ({ ...q, categoryId: catMap['Tiếng Việt'] })),
+        ...engQuestions.slice(0, 50).map(q => ({ ...q, categoryId: catMap['Tiếng Anh'] })),
     ];
 
-    console.log(`Preparing to insert ${allQuestions.length} questions...`);
+    console.log(`Preparing to insert ${allQuestions.length} questions (50 per category)...`);
 
     for (const q of allQuestions) {
         await prisma.question.create({
