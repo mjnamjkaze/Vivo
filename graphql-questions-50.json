@@ -1,0 +1,502 @@
+[
+    {
+        "question": "What is GraphQL?",
+        "optionA": "A query language for APIs",
+        "optionB": "A database system",
+        "optionC": "A programming language",
+        "optionD": "A web framework",
+        "correctAnswer": "A",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "Which company developed GraphQL?",
+        "optionA": "Google",
+        "optionB": "Facebook",
+        "optionC": "Microsoft",
+        "optionD": "Amazon",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the main advantage of GraphQL over REST?",
+        "optionA": "Faster execution",
+        "optionB": "Clients can request exactly what they need",
+        "optionC": "Better security",
+        "optionD": "Easier to learn",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is a GraphQL schema?",
+        "optionA": "A database table structure",
+        "optionB": "A definition of the API's type system",
+        "optionC": "A query template",
+        "optionD": "A security configuration",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "Which keyword is used to fetch data in GraphQL?",
+        "optionA": "get",
+        "optionB": "fetch",
+        "optionC": "query",
+        "optionD": "select",
+        "correctAnswer": "C",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "Which keyword is used to modify data in GraphQL?",
+        "optionA": "update",
+        "optionB": "mutation",
+        "optionC": "modify",
+        "optionD": "change",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is a GraphQL resolver?",
+        "optionA": "A function that resolves a value for a type or field",
+        "optionB": "A database connector",
+        "optionC": "A query optimizer",
+        "optionD": "A security validator",
+        "correctAnswer": "A",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What does SDL stand for in GraphQL?",
+        "optionA": "Standard Definition Language",
+        "optionB": "Schema Definition Language",
+        "optionC": "System Design Language",
+        "optionD": "Structured Data Language",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "Which of these is NOT a scalar type in GraphQL?",
+        "optionA": "Int",
+        "optionB": "String",
+        "optionC": "Array",
+        "optionD": "Boolean",
+        "correctAnswer": "C",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What symbol is used to denote a required field in GraphQL?",
+        "optionA": "*",
+        "optionB": "!",
+        "optionC": "?",
+        "optionD": "#",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is GraphQL Playground?",
+        "optionA": "A testing environment",
+        "optionB": "An IDE for GraphQL",
+        "optionC": "A database tool",
+        "optionD": "A deployment platform",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the purpose of fragments in GraphQL?",
+        "optionA": "To split queries into smaller parts",
+        "optionB": "To reuse common field selections",
+        "optionC": "To improve performance",
+        "optionD": "To add security",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is introspection in GraphQL?",
+        "optionA": "A debugging tool",
+        "optionB": "Querying the schema itself",
+        "optionC": "A performance monitoring feature",
+        "optionD": "A security feature",
+        "correctAnswer": "B",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the default HTTP method used for GraphQL requests?",
+        "optionA": "GET",
+        "optionB": "POST",
+        "optionC": "PUT",
+        "optionD": "PATCH",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is a GraphQL subscription?",
+        "optionA": "A payment plan",
+        "optionB": "A real-time data update mechanism",
+        "optionC": "A security feature",
+        "optionD": "A caching strategy",
+        "correctAnswer": "B",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "Which of these is a popular GraphQL client library?",
+        "optionA": "Axios",
+        "optionB": "Apollo Client",
+        "optionC": "Fetch",
+        "optionD": "jQuery",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the N+1 problem in GraphQL?",
+        "optionA": "A syntax error",
+        "optionB": "A performance issue with nested queries",
+        "optionC": "A security vulnerability",
+        "optionD": "A versioning issue",
+        "correctAnswer": "B",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is DataLoader used for in GraphQL?",
+        "optionA": "Loading data from files",
+        "optionB": "Batching and caching database requests",
+        "optionC": "Uploading files",
+        "optionD": "Data validation",
+        "correctAnswer": "B",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What does the __typename field return?",
+        "optionA": "The field name",
+        "optionB": "The type name of an object",
+        "optionC": "The schema version",
+        "optionD": "The query name",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is a GraphQL directive?",
+        "optionA": "A comment in the schema",
+        "optionB": "A way to modify execution behavior",
+        "optionC": "A type of query",
+        "optionD": "A security rule",
+        "correctAnswer": "B",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "Which directive is used to skip a field conditionally?",
+        "optionA": "@if",
+        "optionB": "@skip",
+        "optionC": "@hide",
+        "optionD": "@ignore",
+        "correctAnswer": "B",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the purpose of the @include directive?",
+        "optionA": "To import other schemas",
+        "optionB": "To conditionally include a field",
+        "optionC": "To add documentation",
+        "optionD": "To mark deprecated fields",
+        "correctAnswer": "B",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is a union type in GraphQL?",
+        "optionA": "A type that combines multiple fields",
+        "optionB": "A type that can be one of several object types",
+        "optionC": "A type for mathematical operations",
+        "optionD": "A type for joining tables",
+        "correctAnswer": "B",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is an interface in GraphQL?",
+        "optionA": "A UI component",
+        "optionB": "An abstract type that other types can implement",
+        "optionC": "A network protocol",
+        "optionD": "A database connection",
+        "correctAnswer": "B",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the purpose of input types in GraphQL?",
+        "optionA": "To define form inputs",
+        "optionB": "To define complex arguments for mutations",
+        "optionC": "To validate user input",
+        "optionD": "To create database schemas",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is GraphQL Code Generator?",
+        "optionA": "A tool to generate code from schemas",
+        "optionB": "A GraphQL server",
+        "optionC": "A database migration tool",
+        "optionD": "A testing framework",
+        "correctAnswer": "A",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the maximum depth typically recommended for GraphQL queries?",
+        "optionA": "5 levels",
+        "optionB": "10 levels",
+        "optionC": "15 levels",
+        "optionD": "No limit",
+        "correctAnswer": "A",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is query complexity analysis?",
+        "optionA": "A way to measure query performance",
+        "optionB": "A security measure to prevent expensive queries",
+        "optionC": "A debugging tool",
+        "optionD": "A caching strategy",
+        "correctAnswer": "B",
+        "tag": "Tinh Thông",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the purpose of persisted queries?",
+        "optionA": "To save queries in the database",
+        "optionB": "To improve security and performance",
+        "optionC": "To enable offline mode",
+        "optionD": "To add logging",
+        "correctAnswer": "B",
+        "tag": "Tinh Thông",
+        "categoryId": 17
+    },
+    {
+        "question": "What is Apollo Federation?",
+        "optionA": "A GraphQL client",
+        "optionB": "A way to compose multiple GraphQL services",
+        "optionC": "A database system",
+        "optionD": "A testing tool",
+        "correctAnswer": "B",
+        "tag": "Tinh Thông",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the @deprecated directive used for?",
+        "optionA": "To remove fields",
+        "optionB": "To mark fields as deprecated",
+        "optionC": "To add warnings",
+        "optionD": "To improve performance",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is a custom scalar in GraphQL?",
+        "optionA": "A user-defined primitive type",
+        "optionB": "A complex object type",
+        "optionC": "A query parameter",
+        "optionD": "A mutation result",
+        "correctAnswer": "A",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the ID scalar type used for?",
+        "optionA": "Integer values only",
+        "optionB": "Unique identifiers",
+        "optionC": "String values only",
+        "optionD": "Boolean flags",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the Float scalar type?",
+        "optionA": "A string type",
+        "optionB": "A decimal number type",
+        "optionC": "An integer type",
+        "optionD": "A boolean type",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is GraphQL Yoga?",
+        "optionA": "A meditation app",
+        "optionB": "A fully-featured GraphQL server",
+        "optionC": "A testing framework",
+        "optionD": "A database ORM",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is Relay in the context of GraphQL?",
+        "optionA": "A server framework",
+        "optionB": "A client framework by Facebook",
+        "optionC": "A database connector",
+        "optionD": "A caching system",
+        "correctAnswer": "B",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the purpose of variables in GraphQL queries?",
+        "optionA": "To store data",
+        "optionB": "To make queries reusable with different values",
+        "optionC": "To improve performance",
+        "optionD": "To add security",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What symbol is used to define a variable in GraphQL?",
+        "optionA": "@",
+        "optionB": "$",
+        "optionC": "#",
+        "optionD": "&",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the purpose of aliases in GraphQL?",
+        "optionA": "To rename fields in the response",
+        "optionB": "To create shortcuts",
+        "optionC": "To improve performance",
+        "optionD": "To add security",
+        "correctAnswer": "A",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is batching in GraphQL?",
+        "optionA": "Grouping multiple queries into one request",
+        "optionB": "Processing data in chunks",
+        "optionC": "Caching responses",
+        "optionD": "Compressing data",
+        "correctAnswer": "A",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the purpose of context in GraphQL resolvers?",
+        "optionA": "To store query results",
+        "optionB": "To share data across resolvers",
+        "optionC": "To cache responses",
+        "optionD": "To validate inputs",
+        "correctAnswer": "B",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is GraphiQL?",
+        "optionA": "A GraphQL server",
+        "optionB": "An in-browser IDE for GraphQL",
+        "optionC": "A database tool",
+        "optionD": "A testing framework",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the purpose of the info parameter in resolvers?",
+        "optionA": "To log information",
+        "optionB": "To access query execution information",
+        "optionC": "To store metadata",
+        "optionD": "To validate data",
+        "correctAnswer": "B",
+        "tag": "Tinh Thông",
+        "categoryId": 17
+    },
+    {
+        "question": "What is schema stitching?",
+        "optionA": "Combining multiple schemas into one",
+        "optionB": "Validating schemas",
+        "optionC": "Optimizing schemas",
+        "optionD": "batching schemas",
+        "correctAnswer": "A",
+        "tag": "Tinh Thông",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the purpose of the extend keyword in GraphQL?",
+        "optionA": "To add fields to existing types",
+        "optionB": "To create new types",
+        "optionC": "To delete fields",
+        "optionD": "To rename types",
+        "correctAnswer": "A",
+        "tag": "Nâng Cao",
+        "categoryId": 17
+    },
+    {
+        "question": "What is automatic persisted queries (APQ)?",
+        "optionA": "A caching mechanism",
+        "optionB": "A security feature",
+        "optionC": "A performance optimization technique",
+        "optionD": "A debugging tool",
+        "correctAnswer": "C",
+        "tag": "Tinh Thông",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the purpose of field arguments in GraphQL?",
+        "optionA": "To filter or modify field results",
+        "optionB": "To add documentation",
+        "optionC": "To improve performance",
+        "optionD": "To add security",
+        "correctAnswer": "A",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is GraphQL Mesh?",
+        "optionA": "A network protocol",
+        "optionB": "A tool to integrate multiple data sources",
+        "optionC": "A database system",
+        "optionD": "A caching layer",
+        "correctAnswer": "B",
+        "tag": "Tinh Thông",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the purpose of the Query type in a GraphQL schema?",
+        "optionA": "To define mutations",
+        "optionB": "To define read operations",
+        "optionC": "To define subscriptions",
+        "optionD": "To define types",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    },
+    {
+        "question": "What is the purpose of the Mutation type in a GraphQL schema?",
+        "optionA": "To define read operations",
+        "optionB": "To define write operations",
+        "optionC": "To define subscriptions",
+        "optionD": "To define types",
+        "correctAnswer": "B",
+        "tag": "Cơ Bản",
+        "categoryId": 17
+    }
+]
